@@ -62,7 +62,7 @@ function mainBranch() {
             addBranch();
         } else if (response.mainChoice === "View Database") {
             viewBranch();
-        } else if (response.mainChoice === "Update Database") {
+        } else if (response.mainChoice === "Update Employee") {
             updateBranch();
         } else if (response.mainChoice === "Exit") {
             connection.end();
@@ -88,6 +88,25 @@ function addBranch() {
         }
     });
 };
+
+function viewBranch() {
+    inquirer.prompt([
+        {
+            type: "list",
+            message: "What will you view?",
+            name: "viewChoice",
+            choices: ["Department", "Role", "Employee"]
+        }
+    ]).then(function(response) {
+        if (response.viewChoice === "Department") {
+            viewDepartment();
+        } else if (response.viewChoice === "Role") {
+             viewRole();
+        } else if (response.viewChoice === "Employee") {
+            viewEmployee();
+        }
+    });
+}
 
 
 // Add Prompts
@@ -149,6 +168,81 @@ function addRole() {
     });
 };
 
+function addEmployee() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is the employee's first name?",
+            name: "newFirstName"
+        },
+        {
+            type: "input",
+            message: "What is the employee's last name?",
+            name: "newLastName"
+        },
+        {
+            type: "input",
+            message: "What is the employee's role?",
+            name: "newEmployeeRole"
+        },
+        {
+            type: "input",
+            message: "What is the employee's manager's Id?",
+            name: "newEmployeeManagerId"
+        }
+    ]).then(function(response) {
+
+        // Finds the matching ID of the provided role name
+        var newEmployeeRoleId;
+        connection.query("SELECT * FROM role WHERE title = ?", response.newEmployeeRole, function(err, res) {
+            if (err) throw err;
+            if (res.length>0) {newEmployeeRoleId = res[0].id};
+            // Inserts new Role Including the corresponding department ID
+            connection.query(
+                `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                VALUES ('${response.newFirstName}', '${response.newLastName}', '${newEmployeeRoleId}', '${response.newEmployeeManagerId}');`, function(err, res) {
+                    if (err) throw err;
+                    console.log(`Added new employee ${response.newFirstName} ${response.newLastName} successfully.`);
+                    mainBranch();
+            });
+        });
+        
+        
+    });
+};
+
+// View Prompts
+function viewDepartment() {
+    connection.query("SELECT * FROM department", function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        setTimeout(() => {
+            mainBranch();
+        }, 300);
+    })
+}
+
+function viewRole() {
+    connection.query("SELECT * FROM role", function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        setTimeout(() => {
+            mainBranch();
+        }, 300);
+    })
+}
+
+function viewEmployee() {
+    connection.query("SELECT * FROM employee", function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        setTimeout(() => {
+            mainBranch();
+        }, 300);
+    })
+}
+
+// Connection Setup
 connection.connect(function(err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
