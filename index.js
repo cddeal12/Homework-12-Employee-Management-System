@@ -55,7 +55,7 @@ function mainBranch() {
             type: "list",
             message: "What will you do?",
             name: "mainChoice",
-            choices: ["Add to Database", "View Database", "Update Database", "Exit"]
+            choices: ["Add to Database", "View Database", "Update Employee", "Exit"]
         }
     ]).then(function(response) {
         if (response.mainChoice === "Add to Database") {
@@ -63,7 +63,7 @@ function mainBranch() {
         } else if (response.mainChoice === "View Database") {
             viewBranch();
         } else if (response.mainChoice === "Update Employee") {
-            updateBranch();
+            updateRole();
         } else if (response.mainChoice === "Exit") {
             connection.end();
         };
@@ -220,7 +220,7 @@ function viewDepartment() {
             mainBranch();
         }, 300);
     })
-}
+};
 
 function viewRole() {
     connection.query("SELECT * FROM role", function(err, res) {
@@ -230,7 +230,7 @@ function viewRole() {
             mainBranch();
         }, 300);
     })
-}
+};
 
 function viewEmployee() {
     connection.query("SELECT * FROM employee", function(err, res) {
@@ -240,6 +240,32 @@ function viewEmployee() {
             mainBranch();
         }, 300);
     })
+};
+
+// Update Prompts
+function updateRole() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Which Employee's role will you change? (enter an id number)",
+            name: "employeeToChange"
+        },
+        {
+            type: "input",
+            message: "What will the employee's new role be?",
+            name: "changedRole"
+        }
+    ]).then(function(response) {
+        connection.query(`SELECT * FROM role WHERE title = '${response.changedRole}'`, function(err, res) {
+            if (err) throw err;
+            var newRoleID = res[0].id;
+            connection.query(`UPDATE employee SET role_id = ${newRoleID} WHERE id = ${response.employeeToChange}`, function(err, res) {
+                if (err) throw err;
+                console.log("Updated employee role sucessfully");
+                mainBranch();
+            });
+        });
+    });
 }
 
 // Connection Setup
