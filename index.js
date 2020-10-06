@@ -40,10 +40,31 @@ function initialize() {
             PRIMARY KEY (id)
         )
         `, function(err, res) {
-
+            if (err) throw err;
+            console.log("Welcome to the Employee Database.")
         });
 }
 
+
+// Prompt Functions
+function mainBranch() {
+    inquirer.prompt([
+        {
+            type: "list",
+            message: "What will you do?",
+            name: "mainChoice",
+            choices: ["Add to Database", "View Database", "Update Database"]
+        }
+    ]).then(function(response) {
+        if (response.mainChoice === "Add to Database") {
+            addBranch();
+        } else if (response.mainChoice === "View Database") {
+            viewBranch();
+        } else if (response.mainChoice === "Update Database") {
+            updateBranch();
+        };
+    });
+};
 
 connection.connect(function(err) {
     if (err) throw err;
@@ -51,3 +72,5 @@ connection.connect(function(err) {
 });
 
 initialize();
+
+mainBranch();
