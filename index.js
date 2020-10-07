@@ -55,7 +55,7 @@ function mainBranch() {
             type: "list",
             message: "What will you do?",
             name: "mainChoice",
-            choices: ["Add to Database", "View Database", "Update Employee", "Exit"]
+            choices: ["Add to Database", "View Database", "Update Employee", "Delete", "Exit"]
         }
     ]).then(function(response) {
         if (response.mainChoice === "Add to Database") {
@@ -64,6 +64,8 @@ function mainBranch() {
             viewBranch();
         } else if (response.mainChoice === "Update Employee") {
             updateRole();
+        } else if (response.mainChoice === "Delete") {
+            deleteBranch();
         } else if (response.mainChoice === "Exit") {
             connection.end();
         };
@@ -108,6 +110,25 @@ function viewBranch() {
     });
 }
 
+function deleteBranch() {
+    inquirer.prompt([
+        {
+            type: "list",
+            message: "What type of item will you delete?",
+            name: "deleteChoice",
+            choices: ["Department", "Role", "Employee"]
+        }
+    ]).then(function(response) {
+        if (response.deleteChoice === "Department") {
+            deleteDepartment();
+        } else if (response.deleteChoice === "Role") {
+             deleteRole();
+        } else if (response.deleteChoice === "Employee") {
+            deleteEmployee();
+        }
+    });
+}
+
 
 // Add Prompts
 function addDepartment() {
@@ -142,7 +163,7 @@ function addRole() {
         },
         {
             type: "input",
-            message: "What department does the new role belong to? (Will be 'null' if no matching department exists)",
+            message: "What department does the new role belong to?",
             name: "newRoleDept"
         }
     ]).then(function(response) {
@@ -242,7 +263,7 @@ function viewEmployee() {
     })
 };
 
-// Update Prompts
+// Update Prompt
 function updateRole() {
     inquirer.prompt([
         {
@@ -266,7 +287,61 @@ function updateRole() {
             });
         });
     });
-}
+};
+
+// Delete Prompt
+function deleteDepartment() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Which Department will you delete?",
+            name: "deptToDelete"
+        }
+    ]).then(function(response) {
+        connection.query(`DELETE FROM department WHERE name = '${response.deptToDelete}'`, function(err, res) {
+            if (err) throw err;
+            console.log("Deleted department successfully");
+            mainBranch();
+        });
+    });
+};
+
+function deleteRole() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Which Role will you delete?",
+            name: "roleToDelete"
+        }
+    ]).then(function(response) {
+        connection.query(`DELETE FROM role WHERE title = '${response.roleToDelete}'`, function(err, res) {
+            if (err) throw err;
+            console.log("Deleted role successfully");
+            mainBranch();
+        });
+    });
+};
+
+function deleteEmployee() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is the employee's first name?",
+            name: "emplToDelete"
+        },
+        {
+            type: "input",
+            message: "What is the employee's last name?",
+            name: "emplLastToDelete"
+        }
+    ]).then(function(response) {
+        connection.query(`DELETE FROM employee WHERE first_name = '${response.emplToDelete}' AND last_name = ${response.emplLastToDelete}`, function(err, res) {
+            if (err) throw err;
+            console.log("Deleted Employee successfully");
+            mainBranch();
+        });
+    });
+};
 
 // Connection Setup
 connection.connect(function(err) {
