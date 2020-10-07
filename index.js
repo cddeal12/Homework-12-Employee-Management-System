@@ -2,12 +2,16 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 
+// USER VARIABLES
+const userName = "root";
+const userPassword = "YOUR PASSWORD HERE";
+
 // SQL connection
 const connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
-    user: "root",
-    password: "Hardbut99?",
+    user: userName,
+    password: userPassword,
     multipleStatements: true
 });
 
